@@ -1,0 +1,14 @@
+{
+  "PORT": 8080,
+  "BACKEND_URL": "",
+  "ESTACAO_ID": "",
+  "PRINT_AGENT_API_KEY": "",
+  "POLLING_INTERVAL": 5000,
+  "HTTP_TIMEOUT": 10000,
+  "PRINTER": {
+    "vendorId": null,
+    "productId": null,
+    "interface": 0,
+    "endpoint": 2
+  }
+}

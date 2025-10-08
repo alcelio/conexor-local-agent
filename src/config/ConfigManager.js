@@ -15,11 +15,76 @@ const { extractEstacaoIdFromApiKey } = require('../utils/textNormalizer');
 
 const CONFIG_FILE = path.join(__dirname, '../../config.json');
 
+// Lista de endpoints discovery (tenta até achar um que funcione)
+const DISCOVERY_ENDPOINTS = [
+  'https://www.conexor.com.br/api/discovery/current',
+  'https://simplex.tec.br/api/discovery/current',
+  'https://neuroagentes-production.up.railway.app/api/discovery/current'
+];
+
 class ConfigManager {
   /**
-   * Carrega configuração do arquivo config.json
+   * Descobre automaticamente a URL do backend
+   * Tenta cada endpoint da lista até encontrar um que funcione
    *
-   * @returns {Object|null} Configuração carregada ou null se não existir/erro
+   * @returns {Promise<string>} URL do backend descoberta
+   */
+  static async discoverBackendUrl() {
+    console.log('🔍 [DISCOVERY] Descobrindo URL do backend automaticamente...');
+
+    for (const endpoint of DISCOVERY_ENDPOINTS) {
+      try {
+        console.log(`🔍 [DISCOVERY] Tentando: ${endpoint}`);
+        const response = await fetch(endpoint, {
+          timeout: 5000,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const backendUrl = data.backend_url;
+          console.log(`✅ [DISCOVERY] Backend descoberto: ${backendUrl}`);
+          return backendUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [DISCOVERY] Falhou: ${endpoint} (${error.message})`);
+        continue; // Tenta próximo
+      }
+    }
+
+    // Se nenhum funcionar, retorna primeiro da lista como fallback
+    const fallback = DISCOVERY_ENDPOINTS[0].replace('/api/discovery/current', '');
+    console.warn(`⚠️ [DISCOVERY] Nenhum endpoint respondeu. Usando fallback: ${fallback}`);
+    return fallback;
+  }
+
+  /**
+   * Cria configuração default vazia para primeira execução
+   *
+   * @returns {Object} Configuração default sem credenciais
+   */
+  static createDefaultConfig() {
+    return {
+      PORT: 8080,
+      BACKEND_URL: "", // Será descoberto automaticamente quando salvar chave
+      ESTACAO_ID: "", // Será extraído da chave automaticamente
+      PRINT_AGENT_API_KEY: "", // Usuário cola via interface web
+      POLLING_INTERVAL: 5000,
+      HTTP_TIMEOUT: 10000,
+      PRINTER: {
+        vendorId: null,
+        productId: null,
+        interface: 0,
+        endpoint: 2
+      }
+    };
+  }
+
+  /**
+   * Carrega configuração do arquivo config.json
+   * Se não existir, cria config vazio para primeira execução
+   *
+   * @returns {Object} Configuração carregada ou config default
    */
   static loadConfig() {
     try {
@@ -35,11 +100,18 @@ class ConfigManager {
 
         console.log('📁 [CONFIG] Configuração carregada de config.json');
         return savedConfig;
+      } else {
+        // Primeira execução - criar config vazio
+        console.log('🆕 [CONFIG] Primeira execução detectada - criando config vazio');
+        const defaultConfig = this.createDefaultConfig();
+        this.saveConfig(defaultConfig);
+        return defaultConfig;
       }
     } catch (error) {
       console.warn('⚠️ [CONFIG] Erro ao ler config.json:', error.message);
+      // Em caso de erro, retornar config default
+      return this.createDefaultConfig();
     }
-    return null;
   }
 
   /**
@@ -57,6 +129,25 @@ class ConfigManager {
       console.error('❌ [CONFIG] Erro ao salvar config.json:', error.message);
       return false;
     }
+  }
+
+  /**
+   * Salva configuração e descobre URL automaticamente se estiver vazia
+   * Usado quando cliente cola chave de conexão pela primeira vez
+   *
+   * @param {Object} config - Configuração com API_KEY
+   * @returns {Promise<Object>} Configuração atualizada com BACKEND_URL descoberta
+   */
+  static async saveConfigWithDiscovery(config) {
+    // Se BACKEND_URL estiver vazio, descobrir automaticamente
+    if (!config.BACKEND_URL || config.BACKEND_URL === "") {
+      console.log('🔍 [CONFIG] BACKEND_URL vazia - descobrindo automaticamente...');
+      config.BACKEND_URL = await this.discoverBackendUrl();
+    }
+
+    // Salvar config atualizada
+    this.saveConfig(config);
+    return config;
   }
 
   /**

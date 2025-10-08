@@ -13,34 +13,78 @@ APP_NAME="Conexor Local Agent"
 VERSION="2.0.1"
 IDENTIFIER="com.conexor.local-agent"
 
-# Criar estrutura de diretórios
+# Criar estrutura de diretórios (instalar no HOME do usuário)
 rm -rf build-pkg
-mkdir -p "build-pkg/Applications/$APP_NAME"
+mkdir -p "build-pkg/Library/Conexor"
 mkdir -p build-pkg/scripts
 
 # Copiar binário
 echo "📦 Copiando binário..."
-cp dist/conexor-local-agent-macos-x64 "build-pkg/Applications/$APP_NAME/"
-chmod +x "build-pkg/Applications/$APP_NAME/conexor-local-agent-macos-x64"
+cp dist/conexor-local-agent-macos-x64 "build-pkg/Library/Conexor/"
+chmod +x "build-pkg/Library/Conexor/conexor-local-agent-macos-x64"
 
-# Criar script postinstall
+# Criar script postinstall que copia para Applications e inicia
 cat > build-pkg/scripts/postinstall << 'SCRIPT'
 #!/bin/bash
 # Post-install script
 
-# Tornar executável
-chmod +x "/Applications/Conexor Local Agent/conexor-local-agent-macos-x64"
+# Criar pasta em Applications (sem sudo)
+INSTALL_DIR="/Applications/Conexor Local Agent"
+USER_HOME=$(eval echo ~$USER)
 
-# Iniciar o agente em background
-nohup "/Applications/Conexor Local Agent/conexor-local-agent-macos-x64" > /dev/null 2>&1 &
+echo "Instalando Conexor Local Agent..."
+
+# Copiar de /Library/Conexor para /Applications
+if [ -d "$INSTALL_DIR" ]; then
+    rm -rf "$INSTALL_DIR"
+fi
+
+mkdir -p "$INSTALL_DIR"
+cp /Library/Conexor/conexor-local-agent-macos-x64 "$INSTALL_DIR/"
+chmod +x "$INSTALL_DIR/conexor-local-agent-macos-x64"
+
+# Criar LaunchAgent para autostart
+LAUNCH_AGENT_DIR="$USER_HOME/Library/LaunchAgents"
+mkdir -p "$LAUNCH_AGENT_DIR"
+
+cat > "$LAUNCH_AGENT_DIR/com.conexor.local-agent.plist" << 'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.conexor.local-agent</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/Conexor Local Agent/conexor-local-agent-macos-x64</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/conexor-agent.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/conexor-agent.error.log</string>
+</dict>
+</plist>
+PLIST
+
+# Carregar LaunchAgent
+launchctl load "$LAUNCH_AGENT_DIR/com.conexor.local-agent.plist" 2>/dev/null || true
+
+# Iniciar o agente agora
+"$INSTALL_DIR/conexor-local-agent-macos-x64" > /dev/null 2>&1 &
 
 echo "✅ Conexor Local Agent instalado e iniciado!"
+echo "📍 Acesse http://localhost:8080 para configurar"
+
 exit 0
 SCRIPT
 
 chmod +x build-pkg/scripts/postinstall
 
-# Criar o pacote
+# Criar o pacote (instala em /Library/Conexor que é permitido)
 echo "🔨 Construindo pacote..."
 pkgbuild --root build-pkg \
          --scripts build-pkg/scripts \

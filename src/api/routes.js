@@ -75,37 +75,34 @@ function setupRoutes(app, config, usb, usbHandler) {
       console.log('   - ESTACAO_ID (extraído):', newConfig.ESTACAO_ID);
       console.log('   - PRINT_AGENT_API_KEY:', newConfig.PRINT_AGENT_API_KEY);
 
-      if (ConfigManager.saveConfig(newConfig)) {
-        // ATUALIZAR CONFIG EM MEMÓRIA (sem matar o processo!)
-        Object.assign(config, newConfig);
+      // Salvar com discovery automático se BACKEND_URL estiver vazia
+      const savedConfig = await ConfigManager.saveConfigWithDiscovery(newConfig);
 
-        console.log('🔄 [CONFIG] Configuração atualizada em memória!');
-        console.log('✅ [CONFIG] Nova Estação:', config.ESTACAO_ID);
-        console.log('✅ [CONFIG] Nova Impressora:', config.PRINTER);
+      // ATUALIZAR CONFIG EM MEMÓRIA (sem matar o processo!)
+      Object.assign(config, savedConfig);
 
-        // SINCRONIZAR configuração da impressora com o backend
-        if (newConfig.PRINTER && newConfig.PRINTER.vendorId && newConfig.PRINTER.productId) {
-          console.log('🔄 [CONFIG] Sincronizando configuração da impressora com backend...');
-          try {
-            await ConfigManager.syncPrinterConfigToBackend(newConfig);
-            console.log('✅ [CONFIG] Configuração da impressora sincronizada com backend!');
-          } catch (syncError) {
-            console.error('⚠️ [CONFIG] Erro ao sincronizar com backend (continuando):', syncError.message);
-            // Não falhar o POST mesmo se sync falhar - config local foi salva
-          }
+      console.log('🔄 [CONFIG] Configuração atualizada em memória!');
+      console.log('✅ [CONFIG] Nova Estação:', config.ESTACAO_ID);
+      console.log('✅ [CONFIG] Backend URL descoberta:', config.BACKEND_URL);
+      console.log('✅ [CONFIG] Nova Impressora:', config.PRINTER);
+
+      // SINCRONIZAR configuração da impressora com o backend
+      if (savedConfig.PRINTER && savedConfig.PRINTER.vendorId && savedConfig.PRINTER.productId) {
+        console.log('🔄 [CONFIG] Sincronizando configuração da impressora com backend...');
+        try {
+          await ConfigManager.syncPrinterConfigToBackend(savedConfig);
+          console.log('✅ [CONFIG] Configuração da impressora sincronizada com backend!');
+        } catch (syncError) {
+          console.error('⚠️ [CONFIG] Erro ao sincronizar com backend (continuando):', syncError.message);
+          // Não falhar o POST mesmo se sync falhar - config local foi salva
         }
-
-        res.json({
-          success: true,
-          message: 'Configuração salva e aplicada com sucesso!',
-          config: newConfig
-        });
-      } else {
-        res.status(500).json({
-          success: false,
-          message: 'Erro ao salvar configuração'
-        });
       }
+
+      res.json({
+        success: true,
+        message: 'Configuração salva e aplicada com sucesso!',
+        config: savedConfig
+      });
     } catch (error) {
       res.status(500).json({
         success: false,
