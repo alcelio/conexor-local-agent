@@ -1,0 +1,26 @@
+====================================
+ CONEXOR LOCAL AGENT v2.0.1
+====================================
+
+INSTALAÇÃO:
+
+1. Duplo-clique em "Instalar.command"
+2. Siga as instruções na tela
+3. Aguarde a instalação concluir
+
+APÓS INSTALAÇÃO:
+
+- Acesse: http://localhost:8080
+- Configure a Chave de Conexão
+- Detecte sua impressora térmica
+
+DESINSTALAÇÃO:
+
+1. Fechar o agente: launchctl unload ~/Library/LaunchAgents/com.conexor.local-agent.plist
+2. Remover app: rm -rf "/Applications/Conexor Local Agent.app"
+3. Remover autostart: rm ~/Library/LaunchAgents/com.conexor.local-agent.plist
+
+====================================
+🚀 Conexor - Software de Gestão Inteligente
+Pensado por: Alcélio Gomes
+====================================
