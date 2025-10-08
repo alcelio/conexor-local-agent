@@ -1,0 +1,14 @@
+{
+  "PORT": 8080,
+  "BACKEND_URL": "http://localhost:3000",
+  "ESTACAO_ID": "caixa_01_899966",
+  "PRINT_AGENT_API_KEY": "pka_caixa_01_899966_36fbffbf1c36b47ac74b2d1b4b2d0758",
+  "POLLING_INTERVAL": 5000,
+  "HTTP_TIMEOUT": 10000,
+  "PRINTER": {
+    "vendorId": 26728,
+    "productId": 512,
+    "interface": 0,
+    "endpoint": 2
+  }
+}
