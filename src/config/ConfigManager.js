@@ -13,7 +13,10 @@ const path = require('path');
 const fetch = require('node-fetch');
 const { extractEstacaoIdFromApiKey } = require('../utils/textNormalizer');
 
-const CONFIG_FILE = path.join(__dirname, '../../config.json');
+// Em binário pkg, __dirname é virtual - usar process.cwd() para arquivo real
+const CONFIG_FILE = process.pkg
+  ? path.join(path.dirname(process.execPath), 'config.json')
+  : path.join(__dirname, '../../config.json');
 
 // Lista de endpoints discovery (tenta até achar um que funcione)
 const DISCOVERY_ENDPOINTS = [

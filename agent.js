@@ -109,27 +109,27 @@ const CONFIG = {
   // Porta do servidor HTTP
   PORT: process.env.PORT || savedConfig?.PORT || 8080,
 
-  // URL do backend (adapta automaticamente: Railway injeta isso ou usa localhost)
-  BACKEND_URL: process.env.BACKEND_URL || savedConfig?.BACKEND_URL || 'http://localhost:3000',
+  // URL do backend (será descoberto automaticamente via discovery)
+  BACKEND_URL: process.env.BACKEND_URL || savedConfig?.BACKEND_URL || '',
 
-  // ID da estação (deve corresponder ao estacao_id do banco)
-  ESTACAO_ID: process.env.ESTACAO_ID || savedConfig?.ESTACAO_ID || 'CAIXA-01',
+  // ID da estação (extraído automaticamente da API Key)
+  ESTACAO_ID: process.env.ESTACAO_ID || savedConfig?.ESTACAO_ID || '',
 
-  // API Key para autenticação (OBRIGATÓRIO - usar key gerada no admin)
-  PRINT_AGENT_API_KEY: process.env.PRINT_AGENT_API_KEY || savedConfig?.PRINT_AGENT_API_KEY || 'pka_test_dev_insecure_12345678',
+  // API Key para autenticação (usuário deve colar via interface web)
+  PRINT_AGENT_API_KEY: process.env.PRINT_AGENT_API_KEY || savedConfig?.PRINT_AGENT_API_KEY || '',
 
-  // Intervalo de polling (Railway pode ajustar)
+  // Intervalo de polling
   POLLING_INTERVAL: parseInt(process.env.POLLING_INTERVAL || savedConfig?.POLLING_INTERVAL || '5000', 10),
 
   // Timeout HTTP
   HTTP_TIMEOUT: parseInt(process.env.HTTP_TIMEOUT || savedConfig?.HTTP_TIMEOUT || '10000', 10),
 
-  // Configuração da impressora USB - PRIORIDADE: savedConfig > env > defaults
+  // Configuração da impressora USB (usuário escolhe via interface web)
   PRINTER: savedConfig?.PRINTER || {
-    vendorId: parseInt(process.env.PRINTER_VENDOR_ID || '0x28e9', 16),
-    productId: parseInt(process.env.PRINTER_PRODUCT_ID || '0x0289', 16),
-    endpoint: parseInt(process.env.PRINTER_ENDPOINT || '0x02', 16),
-    interface: parseInt(process.env.PRINTER_INTERFACE || '0', 10)
+    vendorId: null,
+    productId: null,
+    endpoint: 2,
+    interface: 0
   }
 };
 
