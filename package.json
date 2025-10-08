@@ -1,6 +1,6 @@
 {
   "name": "conexor-local-agent",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Conexor Local Agent - Agente multiplataforma para integração local",
   "main": "agent.js",
   "scripts": {
@@ -26,9 +26,9 @@
     "usb": "^2.9.0"
   },
   "devDependencies": {
+    "electron-builder": "^24.9.1",
     "nodemon": "^3.0.1",
-    "pkg": "^5.8.1",
-    "electron-builder": "^24.9.1"
+    "pkg": "^5.8.1"
   },
   "pkg": {
     "assets": [
@@ -59,7 +59,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon.ico",
@@ -81,7 +83,10 @@
       "target": [
         {
           "target": "pkg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "icon": "assets/icon.icns",
@@ -93,7 +98,11 @@
       "installLocation": "/Applications/Conexor Local Agent"
     },
     "linux": {
-      "target": ["deb", "rpm", "AppImage"],
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage"
+      ],
       "category": "Utility",
       "icon": "assets/icon.png",
       "artifactName": "conexor-local-agent-${version}.${ext}",
@@ -105,10 +114,14 @@
       }
     },
     "deb": {
-      "depends": ["libusb-1.0-0"]
+      "depends": [
+        "libusb-1.0-0"
+      ]
     },
     "rpm": {
-      "depends": ["libusb"]
+      "depends": [
+        "libusb"
+      ]
     }
   }
 }
