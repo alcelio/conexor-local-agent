@@ -151,7 +151,16 @@ const updateService = new UpdateService(CONFIG);
 // SERVIDOR EXPRESS
 // ========================================
 const app = express();
-app.use(cors());
+
+// CORS configurado para aceitar requisições de qualquer origem
+// (necessário para frontend Railway acessar localhost:8080)
+app.use(cors({
+  origin: '*', // Aceita de qualquer origem
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+  credentials: false
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.text({ limit: '10mb' }));
 
