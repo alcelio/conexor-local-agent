@@ -10,19 +10,18 @@ echo "🚀 Criando instalador macOS para Conexor Local Agent..."
 
 # Variáveis
 APP_NAME="Conexor Local Agent"
-VERSION="2.0.0"
+VERSION="2.0.1"
 IDENTIFIER="com.conexor.local-agent"
-INSTALL_LOCATION="/Applications/$APP_NAME"
 
 # Criar estrutura de diretórios
 rm -rf build-pkg
-mkdir -p "build-pkg/$INSTALL_LOCATION"
+mkdir -p "build-pkg/Applications/$APP_NAME"
 mkdir -p build-pkg/scripts
 
 # Copiar binário
 echo "📦 Copiando binário..."
-cp dist/conexor-local-agent-macos-x64 "build-pkg/$INSTALL_LOCATION/"
-chmod +x "build-pkg/$INSTALL_LOCATION/conexor-local-agent-macos-x64"
+cp dist/conexor-local-agent-macos-x64 "build-pkg/Applications/$APP_NAME/"
+chmod +x "build-pkg/Applications/$APP_NAME/conexor-local-agent-macos-x64"
 
 # Criar script postinstall
 cat > build-pkg/scripts/postinstall << 'SCRIPT'
