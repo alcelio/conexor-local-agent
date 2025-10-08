@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// print-agent-local/agent.js
+// conexor-local-agent/agent.js
 /**
  * Pensado por: Alcélio Gomes
  * Codificado com Claude Code
- * 🧠 NeuroAgentes Platform - Intelligent Agent Development
+ * 🚀 Conexor - Software de Gestão Inteligente
  *
- * PRINT AGENT MODULAR
+ * CONEXOR LOCAL AGENT
  * Servidor HTTP + Polling automático de jobs PENDING do backend
  * Arquitetura modularizada para fácil manutenção e testes
  */
@@ -13,6 +13,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 // Importar módulos
 const ConfigManager = require('./src/config/ConfigManager');
@@ -20,7 +21,72 @@ const USBPrinterHandler = require('./src/usb/USBPrinterHandler');
 const HeartbeatService = require('./src/heartbeat/HeartbeatService');
 const JobPoller = require('./src/polling/JobPoller');
 const UpdateService = require('./src/update/UpdateService');
+const AutostartManager = require('./src/services/AutostartManager');
 const setupRoutes = require('./src/api/routes');
+
+// ========================================
+// CONFIGURAR AUTOSTART AUTOMÁTICO
+// ========================================
+(async () => {
+  try {
+    const autostartManager = new AutostartManager();
+
+    // Verificar se é primeira execução (autostart não habilitado)
+    if (!autostartManager.isEnabled()) {
+      console.log('🚀 [AUTOSTART] Primeira execução detectada');
+      console.log('📝 [AUTOSTART] Instalando autostart automaticamente...');
+
+      const result = await autostartManager.enable();
+
+      if (result.success) {
+        console.log('✅ [AUTOSTART] Autostart instalado com sucesso!');
+        console.log(`   → ${autostartManager.getPlatformName()}: Agente iniciará automaticamente no login`);
+      }
+    } else {
+      console.log('✅ [AUTOSTART] Autostart já está habilitado');
+    }
+  } catch (error) {
+    console.warn('⚠️ [AUTOSTART] Não foi possível configurar autostart:', error.message);
+    console.warn('   → Você pode habilitar manualmente via: http://localhost:8080/api/autostart/enable');
+  }
+})();
+
+// ========================================
+// CONFIGURAR EXECUÇÃO EM BACKGROUND (SEM CONSOLE)
+// ========================================
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  // Em produção: Redirecionar logs para arquivo
+  const logsDir = path.join(__dirname, 'logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+
+  const logFile = path.join(logsDir, 'conexor-agent.log');
+  const errorLogFile = path.join(logsDir, 'conexor-agent-error.log');
+
+  const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+  const errorStream = fs.createWriteStream(errorLogFile, { flags: 'a' });
+
+  // Sobrescrever console para logar em arquivo
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  console.log = (...args) => {
+    const timestamp = new Date().toISOString();
+    logStream.write(`[${timestamp}] ${args.join(' ')}\n`);
+    originalLog.apply(console, args); // Manter log original também
+  };
+
+  console.error = (...args) => {
+    const timestamp = new Date().toISOString();
+    errorStream.write(`[${timestamp}] ERROR: ${args.join(' ')}\n`);
+    originalError.apply(console, args);
+  };
+
+  console.log('📝 [LOGS] Logs sendo salvos em:', logFile);
+}
 
 // ========================================
 // INICIALIZAÇÃO USB

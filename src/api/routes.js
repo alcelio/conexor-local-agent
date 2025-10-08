@@ -10,6 +10,7 @@
 
 const { removeAccents, extractEstacaoIdFromApiKey } = require('../utils/textNormalizer');
 const ConfigManager = require('../config/ConfigManager');
+const AutostartManager = require('../services/AutostartManager');
 
 /**
  * Registra todas as rotas no app Express
@@ -336,6 +337,65 @@ function setupRoutes(app, config, usb, usbHandler) {
       res.status(500).json({
         success: false,
         error: error.message
+      });
+    }
+  });
+
+  // ========================================
+  // AUTOSTART - INICIALIZAÇÃO AUTOMÁTICA
+  // ========================================
+
+  const autostartManager = new AutostartManager();
+
+  // GET /api/autostart/status - Verificar status do autostart
+  app.get('/api/autostart/status', (req, res) => {
+    try {
+      console.log('🔍 [AUTOSTART] Verificando status...');
+      const status = autostartManager.getStatus();
+
+      res.json({
+        success: true,
+        ...status
+      });
+    } catch (error) {
+      console.error('❌ [AUTOSTART] Erro ao verificar status:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
+
+  // POST /api/autostart/enable - Habilitar autostart
+  app.post('/api/autostart/enable', async (req, res) => {
+    try {
+      console.log('🚀 [AUTOSTART] Habilitando autostart...');
+      const result = await autostartManager.enable();
+
+      console.log('✅ [AUTOSTART] Autostart habilitado com sucesso!');
+      res.json(result);
+    } catch (error) {
+      console.error('❌ [AUTOSTART] Erro ao habilitar:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
+
+  // POST /api/autostart/disable - Desabilitar autostart
+  app.post('/api/autostart/disable', async (req, res) => {
+    try {
+      console.log('🛑 [AUTOSTART] Desabilitando autostart...');
+      const result = await autostartManager.disable();
+
+      console.log('✅ [AUTOSTART] Autostart desabilitado com sucesso!');
+      res.json(result);
+    } catch (error) {
+      console.error('❌ [AUTOSTART] Erro ao desabilitar:', error);
+      res.status(500).json({
+        success: false,
+        message: error.message
       });
     }
   });

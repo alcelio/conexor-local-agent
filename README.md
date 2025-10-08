@@ -82,6 +82,44 @@ O agente verifica automaticamente novas versões:
 - ✅ Validação SHA-256
 - ✅ Rollback automático em caso de falha
 
+## 🚀 Inicialização Automática
+
+O Conexor Local Agent pode iniciar automaticamente com o sistema:
+
+### **Via Interface Web (Recomendado)**
+
+Após configurar o agente, você verá a opção "Iniciar com o Sistema" na interface web (`http://localhost:8080`).
+
+### **Manualmente via API**
+
+```bash
+# Verificar status
+curl http://localhost:8080/api/autostart/status
+
+# Habilitar
+curl -X POST http://localhost:8080/api/autostart/enable
+
+# Desabilitar
+curl -X POST http://localhost:8080/api/autostart/disable
+```
+
+### **Como Funciona por Plataforma**
+
+**🪟 Windows:**
+- Cria atalho em `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`
+- Inicia automaticamente no login do usuário
+- Não requer permissões de administrador
+
+**🍎 macOS:**
+- Cria LaunchAgent em `~/Library/LaunchAgents/com.conexor.local-agent.plist`
+- Inicia automaticamente no login do usuário
+- Logs disponíveis em `~/Library/Logs/conexor-local-agent.log`
+
+**🐧 Linux:**
+- Cria desktop entry em `~/.config/autostart/conexor-local-agent.desktop`
+- Compatível com GNOME, KDE, XFCE
+- Inicia com a sessão do usuário
+
 ## 🛠️ Desenvolvimento
 
 ```bash
@@ -98,7 +136,56 @@ npm run build-all
 npm run build-win
 npm run build-mac
 npm run build-linux
+
+# Criar instaladores (requer ícones em assets/)
+npm run build-installers
+
+# Criar instalador específico
+npm run package-win   # Windows (NSIS .exe)
+npm run package-mac   # macOS (.pkg)
+npm run package-linux # Linux (.deb, .rpm, .AppImage)
 ```
+
+### **📦 Build de Instaladores**
+
+**Pré-requisitos:**
+1. Ter os binários compilados em `dist/`
+2. Ter ícones em `assets/` (icon.ico, icon.icns, icon.png)
+
+**Comandos:**
+```bash
+# 1. Compilar binários
+npm run build-all
+
+# 2. Criar instaladores
+npm run build-installers
+
+# Instaladores ficam em: installers/
+# - ConexorLocalAgent-Setup-2.0.0.exe (Windows)
+# - ConexorLocalAgent-Setup-2.0.0.pkg (macOS)
+# - conexor-local-agent-2.0.0.deb (Linux Debian/Ubuntu)
+# - conexor-local-agent-2.0.0.rpm (Linux RedHat/Fedora)
+# - conexor-local-agent-2.0.0.AppImage (Linux universal)
+```
+
+### **🎯 Comportamento do Instalador**
+
+**Windows:**
+- Instalação com um clique
+- Configura Firewall automaticamente
+- Inicia agente em background
+- Adiciona no Menu Iniciar
+
+**macOS:**
+- Instalação via .pkg
+- Copia para /Applications
+- Inicia agente automaticamente
+- Pede permissões necessárias
+
+**Linux:**
+- Instalação via apt/yum/AppImage
+- Adiciona ao menu de aplicativos
+- Configura autostart automaticamente
 
 ## 📄 Licença
 

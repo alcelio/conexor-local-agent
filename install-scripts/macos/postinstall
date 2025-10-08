@@ -1,0 +1,21 @@
+#!/bin/bash
+# /Users/alceliogomes/meus_projetos/neuroagentes/conexor-local-agent/install-scripts/macos/postinstall
+# Script pós-instalação para macOS
+# Pensado por: Alcélio Gomes
+# 🚀 Conexor - Software de Gestão Inteligente
+
+set -e
+
+echo "🚀 Configurando Conexor Local Agent..."
+
+# Tornar executável
+chmod +x "/Applications/Conexor Local Agent/conexor-local-agent-macos-x64"
+
+# Iniciar o agente em background
+echo "📍 Iniciando Conexor Local Agent..."
+nohup "/Applications/Conexor Local Agent/conexor-local-agent-macos-x64" > /dev/null 2>&1 &
+
+echo "✅ Conexor Local Agent instalado e iniciado com sucesso!"
+echo "📍 Acesse http://localhost:8080 para configurar"
+
+exit 0

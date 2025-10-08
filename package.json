@@ -11,8 +11,12 @@
     "build-win": "pkg agent.js --targets node18-win-x64 --out-path dist",
     "build-mac": "pkg agent.js --targets node18-macos-x64 --out-path dist",
     "build-linux": "pkg agent.js --targets node18-linux-x64 --out-path dist",
-    "build-win32": "pkg agent.js --targets node18-win-x86 --out-path dist",
-    "clean": "rm -rf dist",
+    "build-installers": "npm run build-all && npm run package-installers",
+    "package-installers": "electron-builder --win --mac --linux",
+    "package-win": "electron-builder --win",
+    "package-mac": "electron-builder --mac",
+    "package-linux": "electron-builder --linux",
+    "clean": "rm -rf dist installers",
     "prebuild": "npm run clean"
   },
   "dependencies": {
@@ -23,7 +27,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
-    "pkg": "^5.8.1"
+    "pkg": "^5.8.1",
+    "electron-builder": "^24.9.1"
   },
   "pkg": {
     "assets": [
@@ -36,5 +41,74 @@
     ]
   },
   "author": "Alcélio Gomes - Conexor",
-  "license": "MIT"
+  "license": "MIT",
+  "build": {
+    "appId": "com.conexor.local-agent",
+    "productName": "Conexor Local Agent",
+    "directories": {
+      "output": "installers",
+      "buildResources": "assets"
+    },
+    "files": [
+      "dist/conexor-local-agent-win-x64.exe",
+      "dist/conexor-local-agent-macos-x64",
+      "dist/conexor-local-agent-linux-x64",
+      "install-scripts/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "ConexorLocalAgent-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "allowElevation": true,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "license": "LICENSE",
+      "include": "install-scripts/windows-installer.nsh"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "pkg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.utilities",
+      "artifactName": "ConexorLocalAgent-Setup-${version}.${ext}"
+    },
+    "pkg": {
+      "scripts": "install-scripts/macos",
+      "installLocation": "/Applications/Conexor Local Agent"
+    },
+    "linux": {
+      "target": ["deb", "rpm", "AppImage"],
+      "category": "Utility",
+      "icon": "assets/icon.png",
+      "artifactName": "conexor-local-agent-${version}.${ext}",
+      "desktop": {
+        "Name": "Conexor Local Agent",
+        "Comment": "Agente local para integração com dispositivos",
+        "Type": "Application",
+        "Categories": "Utility;System;"
+      }
+    },
+    "deb": {
+      "depends": ["libusb-1.0-0"]
+    },
+    "rpm": {
+      "depends": ["libusb"]
+    }
+  }
 }
