@@ -52,8 +52,13 @@ class USBPrinterHandler {
         // Buscar interface
         const iface = device.interface(printerConfig.interface || this.config.PRINTER.interface);
 
-        if (iface.isKernelDriverActive()) {
-          iface.detachKernelDriver();
+        // detachKernelDriver() só funciona no Linux, Windows não precisa
+        if (process.platform !== 'win32' && iface.isKernelDriverActive()) {
+          try {
+            iface.detachKernelDriver();
+          } catch (err) {
+            console.warn('⚠️ [USB] Não foi possível desanexar driver do kernel (pode ser Windows):', err.message);
+          }
         }
 
         iface.claim();
