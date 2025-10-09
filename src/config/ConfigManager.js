@@ -170,7 +170,9 @@ class ConfigManager {
       throw new Error('ESTACAO_ID ou API_KEY não configurados');
     }
 
-    const url = `${config.BACKEND_URL}/api/erp/caixas-agent/estacao/${config.ESTACAO_ID}/printer-config`;
+    // Rota correta: /api/erp/caixas/estacao/:estacao_id (GET para buscar ID, depois PUT /caixas/:id)
+    // Por enquanto, essa função NÃO É USADA - o wizard do frontend faz o sync
+    throw new Error('syncPrinterConfigToBackend deprecated - use wizard frontend');
 
     const payload = {
       vendorId: config.PRINTER.vendorId,
