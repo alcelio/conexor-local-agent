@@ -46,8 +46,22 @@ class USBPrinterHandler {
 
         console.log(`🔍 [USB] Impressora encontrada: ${device.deviceDescriptor.idVendor}:${device.deviceDescriptor.idProduct}`);
 
-        // Abrir device
-        device.open();
+        // Abrir device - Windows precisa de tratamento especial
+        try {
+          device.open();
+        } catch (openError) {
+          if (process.platform === 'win32' && openError.message.includes('LIBUSB_ERROR_NOT_SUPPORTED')) {
+            console.warn('⚠️ [USB] Erro ao abrir device no Windows. Tentando com setConfiguration...');
+            try {
+              device.open();
+              device.setConfiguration(1); // Força configuração padrão no Windows
+            } catch (retryError) {
+              return reject(new Error('Impressora USB não suportada no Windows. Instale o driver WinUSB usando Zadig: https://zadig.akeo.ie/'));
+            }
+          } else {
+            throw openError;
+          }
+        }
 
         // Buscar interface
         const iface = device.interface(printerConfig.interface || this.config.PRINTER.interface);
@@ -57,7 +71,7 @@ class USBPrinterHandler {
           try {
             iface.detachKernelDriver();
           } catch (err) {
-            console.warn('⚠️ [USB] Não foi possível desanexar driver do kernel (pode ser Windows):', err.message);
+            console.warn('⚠️ [USB] Não foi possível desanexar driver do kernel:', err.message);
           }
         }
 
