@@ -40,7 +40,7 @@ class JobPoller {
 
       // Buscar jobs do backend (autenticado via X-Print-Agent-Key)
       const response = await fetch(
-        `${this.config.BACKEND_URL}/api/erp/print-jobs-agent/pending/${this.config.ESTACAO_ID}`,
+        `${this.config.BACKEND_URL}/api/erp/print-jobs/pending/${this.config.ESTACAO_ID}`,
         {
           method: 'GET',
           headers: {
@@ -88,7 +88,7 @@ class JobPoller {
 
       // 1. Marcar como PROCESSING
       await fetch(
-        `${this.config.BACKEND_URL}/api/erp/print-jobs-agent/${job.id}/start`,
+        `${this.config.BACKEND_URL}/api/erp/print-jobs/${job.id}/start`,
         {
           method: 'POST',
           headers: {
@@ -122,7 +122,7 @@ class JobPoller {
 
       // 4. Marcar como COMPLETED
       await fetch(
-        `${this.config.BACKEND_URL}/api/erp/print-jobs-agent/${job.id}/complete`,
+        `${this.config.BACKEND_URL}/api/erp/print-jobs/${job.id}/complete`,
         {
           method: 'POST',
           headers: {
@@ -150,7 +150,7 @@ class JobPoller {
       // Marcar como FAILED
       try {
         await fetch(
-          `${this.config.BACKEND_URL}/api/erp/print-jobs-agent/${job.id}/fail`,
+          `${this.config.BACKEND_URL}/api/erp/print-jobs/${job.id}/fail`,
           {
             method: 'POST',
             headers: {
