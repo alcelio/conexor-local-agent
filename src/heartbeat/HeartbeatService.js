@@ -51,7 +51,7 @@ class HeartbeatService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Print-Agent-API-Key': this.config.PRINT_AGENT_API_KEY
+          'X-Print-Agent-Key': this.config.PRINT_AGENT_API_KEY
         },
         body: JSON.stringify(heartbeatData),
         timeout: this.config.HTTP_TIMEOUT
