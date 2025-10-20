@@ -1,0 +1,46 @@
+========================================
+ NEUROAGENTES - AGENTE DE IMPRESSAO
+========================================
+
+COMO INSTALAR (1 clique):
+
+1. Clique com BOTÃO DIREITO em "instalador-simples.bat"
+2. Selecione "Executar como Administrador"
+3. Aguarde a mensagem "INSTALAÇÃO CONCLUÍDA"
+4. PRONTO! O agente já está rodando!
+
+========================================
+
+O QUE FOI INSTALADO:
+
+✓ Agente copiado para: C:\Program Files\NeuroAgentes\
+✓ Serviço do Windows criado (inicia automaticamente)
+✓ Atalho criado na Área de Trabalho
+
+========================================
+
+SE HOUVER PROBLEMA COM IMPRESSÃO:
+
+1. Clique no atalho "Reiniciar Agente Impressao"
+   que apareceu na sua Área de Trabalho
+2. Clique com BOTÃO DIREITO
+3. Selecione "Executar como Administrador"
+4. Pronto!
+
+========================================
+
+IMPORTANTE:
+
+- O agente precisa de INTERNET para funcionar
+- Impressora térmica deve estar conectada via USB
+- Windows pode pedir permissão - clique em "Sim"
+- Antivírus pode pedir confirmação - autorize o programa
+
+========================================
+
+SUPORTE:
+
+Em caso de dúvidas, entre em contato com o
+suporte da NeuroAgentes.
+
+========================================
