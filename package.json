@@ -1,6 +1,6 @@
 {
   "name": "conexor-local-agent",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Conexor Local Agent - Agente multiplataforma para integração local",
   "main": "agent.js",
   "scripts": {

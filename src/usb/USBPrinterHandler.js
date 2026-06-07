@@ -34,14 +34,22 @@ class USBPrinterHandler {
       const startTime = Date.now();
 
       try {
+        // VID/PID podem vir como hex string ("04b8") ou inteiro decimal (1208)
+        // usb.findByIds() exige inteiros decimais
+        const parseVidPid = (value, fallback) => {
+          if (typeof value === 'number') return value;
+          if (typeof value === 'string' && value.trim() !== '') return parseInt(value, 16);
+          return fallback;
+        };
+
+        const vendorId  = parseVidPid(printerConfig.vendorId,  this.config.PRINTER.vendorId);
+        const productId = parseVidPid(printerConfig.productId, this.config.PRINTER.productId);
+
         // Buscar impressora
-        const device = this.usb.findByIds(
-          printerConfig.vendorId || this.config.PRINTER.vendorId,
-          printerConfig.productId || this.config.PRINTER.productId
-        );
+        const device = this.usb.findByIds(vendorId, productId);
 
         if (!device) {
-          return reject(new Error(`Impressora não encontrada (${printerConfig.vendorId}:${printerConfig.productId})`));
+          return reject(new Error(`Impressora não encontrada (${vendorId.toString(16)}:${productId.toString(16)})`));
         }
 
         console.log(`🔍 [USB] Impressora encontrada: ${device.deviceDescriptor.idVendor}:${device.deviceDescriptor.idProduct}`);
@@ -56,7 +64,7 @@ class USBPrinterHandler {
               device.open();
               device.setConfiguration(1); // Força configuração padrão no Windows
             } catch (retryError) {
-              return reject(new Error('Impressora USB não suportada no Windows. Instale o driver WinUSB usando Zadig: https://zadig.akeo.ie/'));
+              return reject(new Error('Impressora USB nao suportada no Windows. Instale o driver WinUSB: https://zadig.akeo.ie/'));
             }
           } else {
             throw openError;
